@@ -1,9 +1,14 @@
-An Intro to Helm
+Introduction to Helm
 
 John Kidd
 28 Mar 2020
 jkidd@kiddcorp.com
 
+* 
+.image images/di.png 600 900
+
+* 
+.background images/checkin.png
 
 * Why does Helm exist and what does it solve?
 - Templating Kubernetes resources
