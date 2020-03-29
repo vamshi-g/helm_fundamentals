@@ -10,13 +10,77 @@ jkidd@kiddcorp.com
 * 
 .background images/checkin.png
 
-* Why does Helm exist and what does it solve?
-- Templating Kubernetes resources
-- Packaging related resources together
-- Reusability across different environments, & cloud substrates, and clusters
+* What we will cover
+- An Intro to Helm
+- How Helm is Architected
+- Building your First Chart
+- Installing and Using the Helm CLI
+- A Deep Dive into more complex template scenarios —
+- Putting it all together and where to go next
+
+* What is Helm?
+Kubernetes Helm is a package manager for Kubernetes, analogous to Yum or Apt. It makes it possible to organize Kubernetes objects in a packaged application that anyone can download and install, or configure to their specific needs. In Helm, these packages are called charts.
+
+When a user installs a Helm chart, Helm deploys a Kubernetes components in the background, as specified in the chart’s configuration.
+
+* Helm is organized around several key concepts:
+
+- Charts: a package of pre-configured Kubernetes resources
+- Release: a specific instance of a chart which has been deployed to the cluster using Helm
+- Repository: a group of published charts which can be made available to others
+
+Kubernetes Helm was developed by Google and Deis and introduced as part of the Kubernetes 1.4 release in 2016
+
+* Helm in a Nutshell
+Helm is a tool that streamlines installing and managing Kubernetes applications. Think of it like apt/yum/homebrew for Kubernetes.
+
+Helm renders your templates and communicates with the Kubernetes API
+Helm runs on your laptop, CI/CD, or wherever you want it to run.
+Charts are Helm packages that contain at least two things:
+A description of the package (Chart.yaml)
+One or more templates, which contain Kubernetes manifest files
+Charts can be stored on disk, or fetched from remote chart repositories (like Debian or RedHat packages)
+
+* Why does Helm exist and what does it solve? (1)
+- Improves productivity - instead of spending time on deploying test environments to test their Kubernetes clusters, developers can deploy a pre-tested app via a Helm chart and focus on developing their applications.
+- Existing Helm Charts - allow developers to get a working database, big data platform, CMS, etc. deployed for their application with one click. Developers can modify existing charts or create their own to automate dev, test or production processes.
+- Easier to start with Kubernetes - it can be difficult to get started with Kubernetes and learn how to deploy production-grade applications. Helm provides one click deployment of apps, making it much easier to get started and deploy your first app, even if you don't have extensive container experience.
+
+* Why does Helm exist and what does it solve? (2)
+- Reduced complexity - deployment of Kubernetes-orchestrated apps can be extremely complex. Using incorrect values in configuration files or failing to roll out apps correctly from YAML templates can break deployments. Helm Charts allow the community to preconfigure applications, defining values that are fixed and others that are configurable with sensible defaults, providing a consistent interface for changing configuration. This dramatically reduces complexity, and eliminates deployment errors by locking out incorrect configurations. 
+- Production ready - running Kubernetes in production with all its components (pods, namespaces, deployments, etc.) is difficult and prone to error. With a tested, stable Helm chart, users can deploy to production with confidence, and reduce the complexity of maintaining a Kubernetes App Catalog.
+- No duplicated effort - once a developer has created a chart, tested and stabilized it once, it can be reused across multiple groups in an organization and outside it. Previously, it was much more difficult (but not impossible) to share Kubernetes applications and replicate them between environments. 
 
 * How Helm is Architected
-.image images/helm_arch.png
+Helm consists of two main components:
+
+- Helm Client - allows developers to create new charts, manage chart repositories, and interact with the tiller server.
+- Tiller Server - runs inside the Kubernetes cluster. Interacts with Helm client, and translates chart definitions and configuration to Kubernetes API commands. Tiller combines a chart and its configuration to build a release. Tiller is also responsible for upgrading charts, or uninstalling and deleting them from the Kubernetes cluster.
+.image images/helm_arch.png 250 325
+
+* Fundamental Helm Operations (1)
+- helm init
+- helm search
+- helm add repo
+- helm install
+- helm delete 
+- helm inspect values
+e.g. helm inspect values stable/mariadb
+echo '{mariadbUser: user0, mariadbDatabase: user0db}' > config.yaml
+helm install -f config.yaml stable/mariadb
+
+* Fundamental Helm Operations (2)
+- helm status <release_name>
+- helm upgrade <release_name>
+- helm rollback <release_name>
+- helm list
+- helm create <name>
+- To fetch a chart and unpack it in a local directory, useful for inspecting, modifying or repackaging charts, run:
+      helm fetch [flags] [chart URL | repo/chartname]
+- To download a release on your cluster 
+      helm get [flags] RELEASE_NAME
+
+With many of these operations, you can perform them with --dry-run
 
 * Activity: Getting Helm Setup (1)
 - Need a kubernetes cluster (Docker Desktop for local)
@@ -62,6 +126,7 @@ helm list --tiller-namespace $TILLER_NAMESPACE
 helm delete --tiller-namespace $TILLER_NAMESPACE NAME-OF-THE-RELEASE
 
 * The three parts of Helm
+- The elements of a Helm Chart
 - Charts: Templated Definitions of Kubernetes Resources
 - Config: Install/Upgrade time values
 - Releases: Charts and Config put together to run stuff in the Cluster
@@ -72,9 +137,8 @@ helm create <YOUR CHART NAME>
 Helm helps you creating Helm charts, with the create command a directory will be created with some necessary files like the Chart.yaml, values.yaml, a templates directory ...
 
 In the following steps I assume, that you use nginx as Chart name
-Remove pre-created files
 
-Helm will add a template for a deployment, ingress & service to the templates directory, let's remove them, we do not want to use them.
+Helm will add a template for a deployment, ingress & service to the templates directory, for our purposes, let's remove them, we do not want to use them.
 
 - rm nginx/templates/deployment.yaml nginx/templates/ingress.yaml nginx/templates/service.yaml
 
