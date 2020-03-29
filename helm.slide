@@ -13,34 +13,92 @@ jkidd@kiddcorp.com
 * How Helm is Architected
 .image images/helm_arch.png
 
-* Activity: Getting Helm Setup
+* Activity: Getting Helm Setup (1)
 - Need a kubernetes cluster (Docker Desktop for local)
-- Install Helm
-  For Mac use homebrew. Note: Make sure you install helm@2 for v2
+- Install Helm (Mac)
+  Use homebrew. Make sure you install helm@2 for v2
+
+- For non-homebrew/linux:
+wget https://storage.googleapis.com/kubernetes-helm/helm-v2.12.3-linux-amd64.tar.gz
+tar -zxvf helm-v2.12.3-linux-amd64.tar.gz
+sudo mv linux-amd64/helm /usr/local/bin/helm
+
+* Activity: Getting Helm Setup(2)
 - Create Namespace for Tiller
   TILLER_NAMESPACE=tiller-land
   kubectl create namespace $TILLER_NAMESPACE
 - Create Service Account for RBAC
   TILLER_SA=tiller-sa
   kubectl create serviceaccount $TILLER_SA --namespace $TILLER_NAMESPACE
+
+* Activity: Getting Helm Setup(3)
 - Create a role for Tiller
+.code code/role.yaml
   kubectl create -f role.yaml
-* Activity: Getting Helm Setup (cont:)
+
+* Activity: Getting Helm Setup (4)
 - Bind the Role to the SA
+.code code/role-binding.yaml
   kubectl create -f role-binding.yaml
+
+* Activity: Getting Helm Setup (5)
 - Install Tiller
   helm init --service-account $TILLER_SA --tiller-namespace $TILLER_NAMESPACE
 
+* Testing our install
+helm install stable/nginx-ingress --tiller-namespace $TILLER_NAMESPACE --namespace $TILLER_NAMESPACE
 
+The --tiller-namespace is the namespace, where the tiller is running and --namespace where our application will be installed. In our example these have to be the same, because tiller is only allowed to act in his namespace.
+
+- List Releases
+helm list --tiller-namespace $TILLER_NAMESPACE
+
+- Delete Release
+helm delete --tiller-namespace $TILLER_NAMESPACE NAME-OF-THE-RELEASE
 
 * The three parts of Helm
 - Charts: Templated Definitions of Kubernetes Resources
 - Config: Install/Upgrade time values
 - Releases: Charts and Config put together to run stuff in the Cluster
 
-* Lab 1: First look at Helm
+* Activity: Building your First Chart (1)
+helm create <YOUR CHART NAME>
 
-* Building your First Chart
+Helm helps you creating Helm charts, with the create command a directory will be created with some necessary files like the Chart.yaml, values.yaml, a templates directory ...
+
+In the following steps I assume, that you use nginx as Chart name
+Remove pre-created files
+
+Helm will add a template for a deployment, ingress & service to the templates directory, let's remove them, we do not want to use them.
+
+- rm nginx/templates/deployment.yaml nginx/templates/ingress.yaml nginx/templates/service.yaml
+
+* Activity: Building your First Chart (2)
+As a reference, there is a nginx.yaml in this directory, which contains a Deployment, Service, ConfigMap & a Secret Kubernetes Manifest, try to convert this to a Helm chart.
+
+Possible steps:
+- create a file per Kubernetes entity
+- use templating for often used identifiers & move them to the values.yaml
+- move cross-referenced values like ports to the values.yaml
+- the b64enc function could be useful for secrets
+- use helm template to test your templates (maybe the first time after splitting up the manifest & before using any templating)
+
+If you got lost, have a look in nginx-final.
+
+* Activity: Building your First Chart (3)
+- Template
+If you want to test your current chart, but don't want to install it you can use the template-function:
+
+helm template nginx/
+
+Outputs your rendered chart with the default values.yaml If you're running Helm <= 2.7 you have to use the following command.
+
+helm install --debug --dry-run
+
+- Linting
+Want to check if you're following the best practices, or if all your variables are set in the default values.yaml
+
+helm lint nginx/
 
 * A look at all the things that make up a chart
 - Chart metadata and info
