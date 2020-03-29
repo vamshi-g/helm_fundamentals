@@ -11,8 +11,27 @@ jkidd@kiddcorp.com
 - Reusability across different environments, & cloud substrates, and clusters
 
 * How Helm is Architected
-A first look at the CLI
-- Initializing Helm: the client and the server
+.image images/helm_arch.png
+
+* Activity: Getting Helm Setup
+- Need a kubernetes cluster (Docker Desktop for local)
+- Install Helm
+  For Mac use homebrew. Note: Make sure you install helm@2 for v2
+- Create Namespace for Tiller
+  TILLER_NAMESPACE=tiller-land
+  kubectl create namespace $TILLER_NAMESPACE
+- Create Service Account for RBAC
+  TILLER_SA=tiller-sa
+  kubectl create serviceaccount $TILLER_SA --namespace $TILLER_NAMESPACE
+- Create a role for Tiller
+  kubectl create -f role.yaml
+* Activity: Getting Helm Setup (cont:)
+- Bind the Role to the SA
+  kubectl create -f role-binding.yaml
+- Install Tiller
+  helm init --service-account $TILLER_SA --tiller-namespace $TILLER_NAMESPACE
+
+
 
 * The three parts of Helm
 - Charts: Templated Definitions of Kubernetes Resources
