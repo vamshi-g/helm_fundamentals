@@ -1,13 +1,72 @@
-Playground v3
-2019-10-08
+An Intro to Helm
 
-Brad Fitzpatrick
-@bradfitz
-bradfitz@golang.org
+John Kidd
+28 Mar 2020
+jkidd@kiddcorp.com
 
-* Overview
 
-- This is talk about play.golang.org
-- What it does
-- History of implementations
-- Latest incarnation
+* Why does Helm exist and what does it solve?
+- Templating Kubernetes resources
+- Packaging related resources together
+- Reusability across different environments, & cloud substrates, and clusters
+
+* How Helm is Architected
+A first look at the CLI
+- Initializing Helm: the client and the server
+
+* The three parts of Helm
+- Charts: Templated Definitions of Kubernetes Resources
+- Config: Install/Upgrade time values
+- Releases: Charts and Config put together to run stuff in the Cluster
+
+* Lab 1: First look at Helm
+
+* Building your First Chart
+
+* A look at all the things that make up a chart
+- Chart metadata and info
+- Variables
+- Templates
+- Dependencies
+
+* Best Practices when Developing Charts
+- General conventions
+- Avoiding Gotchas including preparing for the best overrides support possible
+- Templating practices including working with Go templates, Sprig, and the other pieces that Helm templates support
+- Packaging up a chart, preparing to be distributed (including Firefly)
+
+* Lab 2: Building Charts
+
+* Installing and Using the Helm CLI
+* Revisiting initializing Helm
+- A deeper look at both the client 
+- Securing Helm via TLS certs and some alternative strategies for how and where Helm can be run
+- Kubernetes RBAC and Helm
+- A Helm per namespace as a pattern
+* Managing Known Client Repos
+* Managing Plugins and working with some common ones
+- Helm S3
+* How do I Test it all?
+- Helm hook-based testing
+- The unitest plugin
+- conftest and OPA as a possible alternative testing strategy
+- The helm template command
+* Linters: Helm lint
+- Unit tests: helm unittest (https://github.com/lrills/helm-unittest), example here (https://github.com/lrills/helm-unittest/tree/master/__fixtures__/basic/tests).
+- Integration tests: helm test (https://docs.helm.sh/helm/helm_test/)
+* Bypassing Tiller and Helm release management entirely and just leveraging the power of Helm as a templating and packaging utility
+* A look at the remaining CLI commands available
+* Lab 3: Using the CLI
+
+* A Deep Dive into more complex template scenarios
+- Maximizing reusability via helpers
+- Navigating Go templates, Sprig, and Helm templating with grace
+- Looking at loops and other various more-complex syntax cases in templates
+
+* Lab 4: Constructing something more than a simple solution
+
+* Putting it all together and where to go next
+- Operations around managing the release of many charts that make up your platform in a cluster or even many clusters
+- A quick look at Helm v3 recently release, what changed and why
+* Where to get more info
+- reference section: https://helm.sh/blog/2019-10-22-helm-2150-released

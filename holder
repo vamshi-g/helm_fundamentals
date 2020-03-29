@@ -1,0 +1,9 @@
+* _*A Deep Dive into more complex template scenarios — *_
+    * Maximizing reusability via helpers
+    * Navigating Go templates, Sprig, and Helm templating with grace
+    * Looking at loops and other various more-complex syntax cases in templates
+    * *Lab 4: Constructing something more than a simple solution*
+* _*Putting it all together and where to go next*_
+    * Operations around managing the release of many charts that make up your platform in a cluster or even many clusters
+    * A quick look at Helm v3 recently release, what changed and why
+* “Where to get more info” reference section: https://helm.sh/blog/2019-10-22-helm-2150-released
