@@ -213,6 +213,10 @@ Once satisfied, you can go ahead and run the upgrade command again and check the
     helm search my-repo
     helm install -name my-new-helm myrepo/my-new-helm
 
+* Fundamental Chart Development
+In this walkthrough we will build a basic chart to explore how to put a chart together and some of the important elements.
+
+
 * Your Turn
 
 * Activity: Building your First Chart (1)
