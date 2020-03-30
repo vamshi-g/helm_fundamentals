@@ -15,7 +15,7 @@ jkidd@kiddcorp.com
 - How Helm is Architected
 - Building your First Chart
 - Installing and Using the Helm CLI
-- A Deep Dive into more complex template scenarios —
+- A look into more complex template scenarios
 - Putting it all together and where to go next
 
 * What is Helm?
@@ -88,6 +88,7 @@ helm install -f config.yaml stable/mariadb
 With many of these operations, you can perform them with --dry-run
 
 * Activity: Getting Helm Setup (1)
+- Note: Helm installs tiller on the kube-system namespace by default. If you need to segregate the permissions tiller has, you will need to create a tiller in separate namespaces
 - Need a kubernetes cluster (Docker Desktop for local)
 - Install Helm (Mac)
   Use homebrew. Make sure you install helm@2 for v2
@@ -119,7 +120,10 @@ sudo mv linux-amd64/helm /usr/local/bin/helm
 - Install Tiller
   helm init --service-account $TILLER_SA --tiller-namespace $TILLER_NAMESPACE
 
-* Testing our install
+- Note: to use helm without tiller you can
+  helm init --client-only
+
+* Activity: Testing our install
 helm install stable/nginx-ingress --tiller-namespace $TILLER_NAMESPACE --namespace $TILLER_NAMESPACE
 
 The --tiller-namespace is the namespace, where the tiller is running and --namespace where our application will be installed. In our example these have to be the same, because tiller is only allowed to act in his namespace.
@@ -253,44 +257,71 @@ Want to check if you're following the best practices, or if all your variables a
 
 helm lint nginx/
 
+- Create  Github Repo and publish your solution
+
+* Unit testing Helm Charts
+- Plugins: Allow for the extension of core helm capabilities
+    helm plugin install https://github.com/lrills/helm-unittest
+- Create a yaml test file in tests subdirectory
+.code code/deployment_test.yaml
+- Your turn: Build a test for your custom chart that you built
+
+* Other plugins of interest
+- Integration testing - Helm Test
+.link https://docs.helm.sh/helm/helm_test/ 
+- S3 Integration (Using S3 to host a repo)
+.link https://github.com/hypnoglow/helm-s3
+
+* Helm Hooks (1)
+- Helm provides a hook mechanism to allow chart developers to intervene at certain points in a release’s life cycle
+- pre-install	Executes after templates are rendered, but before any resources are created
+- post-install	Executes after all resources are loaded 
+- pre-delete	Executes on a deletion request before any resources are deleted from Kubernetes
+- post-delete	Executes on a deletion request after all of the release’s resources have been deleted
+* Helm Hooks (2)
+- pre-upgrade	Executes on an upgrade request after templates are rendered, but before any resources are updated
+- post-upgrade	Executes on an upgrade after all resources have been upgraded
+- pre-rollback	Executes on a rollback request after templates are rendered, but before any resources are rolled back
+- post-rollback	Executes on a rollback request after all resources have been modified test Executes when the Helm test subcommand is invoked 
+
+* Template Dependencies
+- One template can declare a dependency on another
+  for our purposes we will use: https://github.com/jwkidd3/helm-chart-dependency
+
+* Go Templates
+- Sprig
+  http://masterminds.github.io/sprig/
+- Go Templates
+  https://blog.gopheracademy.com/advent-2017/using-go-templates/
+- helpers
+  https://helm.sh/docs/chart_template_guide/named_templates/
+- Control Structures
+  https://helm.sh/docs/chart_template_guide/control_structures/
+
+* Named Templates
+- There are common capabilities needed across many templates
+- To facilitate this Helm uses a concept called named templates
+.link https://helm.sh/docs/chart_template_guide/named_templates/
+
+See:
+.link https://github.com/jwkidd3/helm-microservices-example
+
+* Final lab
+- Create a set of charts to implement the following:
+- Develop a microservice application with a python front end and a redis backend
+- Use the application code located here:
+.link https://github.com/jwkidd3/helm_final_lab
+
 * Best Practices when Developing Charts
-- General conventions
-- Avoiding Gotchas including preparing for the best overrides support possible
-- Templating practices including working with Go templates, Sprig, and the other pieces that Helm templates support
-- Packaging up a chart, preparing to be distributed (including Firefly)
+.link https://helm.sh/docs/chart_best_practices/values/
 
-* Lab 2: Building Charts
+* Helm 3
+- Client only architecture
+- No need to initialize Helm
+- Chart repository status
+- Helm test framework updates
+- Helm 2 interface still supported
+- Helm Go library overhauled
 
-* Installing and Using the Helm CLI
-* Revisiting initializing Helm
-- A deeper look at both the client 
-- Securing Helm via TLS certs and some alternative strategies for how and where Helm can be run
-- Kubernetes RBAC and Helm
-- A Helm per namespace as a pattern
-* Managing Known Client Repos
-* Managing Plugins and working with some common ones
-- Helm S3
-* How do I Test it all?
-- Helm hook-based testing
-- The unitest plugin
-- conftest and OPA as a possible alternative testing strategy
-- The helm template command
-* Linters: Helm lint
-- Unit tests: helm unittest (https://github.com/lrills/helm-unittest), example here (https://github.com/lrills/helm-unittest/tree/master/__fixtures__/basic/tests).
-- Integration tests: helm test (https://docs.helm.sh/helm/helm_test/)
-* Bypassing Tiller and Helm release management entirely and just leveraging the power of Helm as a templating and packaging utility
-* A look at the remaining CLI commands available
-* Lab 3: Using the CLI
-
-* A Deep Dive into more complex template scenarios
-- Maximizing reusability via helpers
-- Navigating Go templates, Sprig, and Helm templating with grace
-- Looking at loops and other various more-complex syntax cases in templates
-
-* Lab 4: Constructing something more than a simple solution
-
-* Putting it all together and where to go next
-- Operations around managing the release of many charts that make up your platform in a cluster or even many clusters
-- A quick look at Helm v3 recently release, what changed and why
-* Where to get more info
+* Resources
 - reference section: https://helm.sh/blog/2019-10-22-helm-2150-released
