@@ -32,14 +32,14 @@ When a user installs a Helm chart, Helm deploys a Kubernetes components in the b
 Kubernetes Helm was developed by Google and Deis and introduced as part of the Kubernetes 1.4 release in 2016
 
 * Helm in a Nutshell
-Helm is a tool that streamlines installing and managing Kubernetes applications. Think of it like apt/yum/homebrew for Kubernetes.
+Helm streamlines installing and managing Kubernetes applications. 
 
-Helm renders your templates and communicates with the Kubernetes API
-Helm runs on your laptop, CI/CD, or wherever you want it to run.
+Helm renders templates and communicates with the Kubernetes API
+Helm runs wherever you want it to run.
 Charts are Helm packages that contain at least two things:
-A description of the package (Chart.yaml)
-One or more templates, which contain Kubernetes manifest files
-Charts can be stored on disk, or fetched from remote chart repositories (like Debian or RedHat packages)
+- A description of the package (Chart.yaml)
+- One or more templates, which contain Kubernetes manifest files
+Charts can be stored on disk, or fetched from remote chart repositories 
 
 * Why does Helm exist and what does it solve? (1)
 - Improves productivity - instead of spending time on deploying test environments to test their Kubernetes clusters, developers can deploy a pre-tested app via a Helm chart and focus on developing their applications.
@@ -56,7 +56,12 @@ Helm consists of two main components:
 
 - Helm Client - allows developers to create new charts, manage chart repositories, and interact with the tiller server.
 - Tiller Server - runs inside the Kubernetes cluster. Interacts with Helm client, and translates chart definitions and configuration to Kubernetes API commands. Tiller combines a chart and its configuration to build a release. Tiller is also responsible for upgrading charts, or uninstalling and deleting them from the Kubernetes cluster.
-.image images/helm_arch.png 250 325
+
+* Helm Architecture - 1
+.image images/helm_arch.png
+
+* Helm Architecture - 2
+.image images/helm_arch2.png 600 600
 
 * Fundamental Helm Operations (1)
 - helm init
@@ -125,11 +130,90 @@ helm list --tiller-namespace $TILLER_NAMESPACE
 - Delete Release
 helm delete --tiller-namespace $TILLER_NAMESPACE NAME-OF-THE-RELEASE
 
-* The three parts of Helm
-- The elements of a Helm Chart
-- Charts: Templated Definitions of Kubernetes Resources
-- Config: Install/Upgrade time values
-- Releases: Charts and Config put together to run stuff in the Cluster
+* A look at all the things that make up a chart
+- Chart metadata and info
+- Variables
+- Templates
+- Dependencies
+
+* The contents of a Chart
+- Best way to learn about charts is to look at an an example
+- So lets create a basic chart
+  helm create my-new-helm
+- Result
+.image images/newchart.png 300 300
+
+* Installation
+.image images/install.png 500 500
+
+* Checking your install
+- kubectl get pods -w
+- kubectl port-forward svc/my-new-helm 8888:80
+
+* Upgrade the Chart
+Add a configmap.yaml file to the templates directory
+populate the configmap.yaml file with the following:
+.code code/configmap.yaml
+
+Now add this snippet to the deployment.yaml file:
+.code code/deployment_snippet.yaml
+
+* Now it is time to upgrade
+    helm upgrade my-new-helm .
+
+Now go check http://localhost:8888 to see the results
+
+* Go Template syntax
+- Now update your configmap.yaml with the following go template syntax:
+    index.html: {{ .Values.pageContent }}
+- Add the following to values.yaml
+    pageContent: | <h1> My new Helm Template 0.0 </h1>
+- Before you upgrade try:
+    helm install . --dry-run --debug
+This will show you what will happen at upgrade time. 
+
+* Other tools
+- You can also run (And see the result of the template output)
+    helm template .
+- The helm linter can be run to verify the chart as well
+    helm lint .
+
+Once satisfied, you can go ahead and run the upgrade command again and check the result.
+
+* Static files
+- Add a file called index.html in in my-new-helm/static with the following contents
+    <h1>My new Helm from a file!</h1>
+- Update your configmap.yaml with the following
+    data: 
+      {{- (.Files.Glob "static/*").AsConfig | nindent 2 }} 
+- Upgrade and check the results
+
+* Revisions
+- check the revision history by running
+    helm history my-new-helm
+- Lets rollback to the first revision
+    helm rollback my-new-helm 1
+- If you want to keep history short you set that when you init
+    helm init --service-account tiller --history-max 3
+- Now list your Releases
+    helm list
+- Delete your chart
+    helm delete --purge my-new-helm
+
+* Distributing Charts
+- Package your chart first
+    helm package .
+- Create an empty directory called "charts"
+- Move your my-new-helm chart into your charts directory and run
+    helm repo index .
+- Create a github repo and push your chart repo
+- Now you can add this repo into your helm install
+    helm repo add myrepo https://raw.githubusercontent.com/jwkidd3/charts/master
+- Now you can search/install directly from your repo
+    helm search my-repo
+    helm install -name my-new-helm myrepo/my-new-helm
+
+* Your Turn
 
 * Activity: Building your First Chart (1)
 helm create <YOUR CHART NAME>
@@ -168,12 +252,6 @@ helm install --debug --dry-run
 Want to check if you're following the best practices, or if all your variables are set in the default values.yaml
 
 helm lint nginx/
-
-* A look at all the things that make up a chart
-- Chart metadata and info
-- Variables
-- Templates
-- Dependencies
 
 * Best Practices when Developing Charts
 - General conventions
