@@ -309,6 +309,7 @@ See:
 * Final lab
 - Create a set of charts to implement the following:
 - Develop a microservice application with a python front end and a redis backend
+- Make an umbrella chart adding in the front end and back end charts as dependencies
 - Use the application code located here:
 .link https://github.com/jwkidd3/helm_final_lab
 
