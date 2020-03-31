@@ -324,5 +324,8 @@ See:
 - Helm 2 interface still supported
 - Helm Go library overhauled
 
+See: 
+.link https://github.com/jwkidd3/helm_fundamentals
+
 * Resources
 - reference section: https://helm.sh/blog/2019-10-22-helm-2150-released
